@@ -8,10 +8,16 @@ import {
 
 @Entity("user")
 export class UserEntity {
-  constructor(userName: string, password: string, isOnline: boolean) {
+  constructor(
+    userName: string,
+    password: string,
+    lastLoginTime: Date,
+    token: string
+  ) {
     this.userName = userName;
     this.password = password;
-    this.isOnline = isOnline;
+    this.lastLoginTime = lastLoginTime;
+    this.token = token;
   }
 
   @ObjectIdColumn()
@@ -24,5 +30,8 @@ export class UserEntity {
   password: string;
 
   @Column()
-  isOnline: boolean;
+  lastLoginTime: Date;
+
+  @Column()
+  token: string;
 }

@@ -1,46 +1,56 @@
-import { getRepository } from "typeorm";
+import { getRepository, Repository } from "typeorm";
 import bcrypt from "bcrypt";
 import { UserEntity } from "../entites/UserEntity";
+import { sign } from "jsonwebtoken";
+import { PRIVATE_KEY } from "../util/ChatConstant";
 
-const bcryptHashRound = 10;
-
-export const signIn = async (username: string, password: string) => {
-  const userRepository = getRepository(UserEntity);
-  const user = await userRepository.findOne({ userName: username });
-  if (user) {
-    if (bcrypt.compare(password, user.password)) {
-      await userRepository.update({ userName: username }, { isOnline: true });
-      return true;
-    }
+export class UserService {
+  bcryptHashRound: number;
+  userRepository: Repository<UserEntity>;
+  constructor() {
+    this.bcryptHashRound = 10;
+    this.userRepository = getRepository(UserEntity);
   }
-  return false;
-};
 
-export const signOut = async (username: string) => {
-  const userRepository = getRepository(UserEntity);
-  try {
-    await userRepository.update({ userName: username }, { isOnline: false });
-    return true;
-  } catch (e) {
-    console.log("error when signOut : " + e);
-    return false;
-  }
-};
-
-export const signUp = async (userName: string, password: string) => {
-  try {
-    const userRepository = getRepository(UserEntity);
-    const user = await userRepository.findOne({ userName: userName });
+  signIn = async (userName: string, password: string) => {
+    const user = await this.userRepository.findOne({ userName: userName });
     if (user) {
-      throw new Error("already has user");
-    } else {
-      const encryptedPw = await bcrypt.hash(password, bcryptHashRound);
-      const newUser = new UserEntity(userName, encryptedPw, false);
-      await userRepository.save(newUser);
-      return true;
+      if (bcrypt.compare(password, user.password)) {
+        const currentTime = new Date();
+        const token = sign(
+          { userName: userName, loginTime: currentTime },
+          PRIVATE_KEY
+        );
+        await this.userRepository.update(
+          { userName: userName },
+          { token: token, lastLoginTime: currentTime }
+        );
+        return true;
+      }
     }
-  } catch (e) {
-    console.log("UserService|error " + e.message);
-    throw e;
-  }
-};
+    return false;
+  };
+
+  signOut = async (userName: string) => {
+    try {
+      await this.userRepository.update({ userName: userName }, { token: null });
+      return true;
+    } catch (e) {
+      console.log("error when signOut : " + e);
+      return false;
+    }
+  };
+
+  signUp = async (userName: string, password: string) => {
+    try {
+      const encryptedPw = await bcrypt.hash(password, this.bcryptHashRound);
+
+      const newUser = new UserEntity(userName, encryptedPw, null, null);
+      await this.userRepository.save(newUser);
+      return true;
+    } catch (e) {
+      console.log("UserService|error " + e.message);
+      throw e;
+    }
+  };
+}
