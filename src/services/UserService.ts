@@ -2,7 +2,6 @@ import { getRepository, Repository } from "typeorm";
 import bcrypt from "bcrypt";
 import { UserEntity } from "../entites/UserEntity";
 import { sign } from "jsonwebtoken";
-import { PRIVATE_KEY } from "../util/ChatConstant";
 
 export class UserService {
   bcryptHashRound: number;
@@ -17,18 +16,15 @@ export class UserService {
     if (user) {
       if (bcrypt.compare(password, user.password)) {
         const currentTime = new Date();
-        const token = sign(
-          { userName: userName, loginTime: currentTime },
-          PRIVATE_KEY
-        );
-        await this.userRepository.update(
-          { userName: userName },
-          { token: token, lastLoginTime: currentTime }
-        );
-        return true;
+        const siginInResult = {
+          token: this.getToken(userName),
+          lastLoginTime: currentTime
+        };
+        await this.userRepository.update({ userName: userName }, siginInResult);
+        return siginInResult;
       }
     }
-    return false;
+    return null;
   };
 
   signOut = async (userName: string) => {
@@ -52,5 +48,15 @@ export class UserService {
       console.log("UserService|error " + e.message);
       throw e;
     }
+  };
+
+  getToken = (username: string): string => {
+    const currentTime = new Date();
+    const token = sign(
+      { userName: username, loginTime: currentTime },
+      process.env.PRIVATE_KEY,
+      { expiresIn: "1h" }
+    );
+    return token;
   };
 }

@@ -1,6 +1,6 @@
 import express from "express";
-import { Response } from "../model/response";
-import { signIn, signUp, signOut } from "../services/UserService";
+import { RestResponse } from "../model/RestResponse";
+import { UserService } from "../services/UserService";
 
 const router = express.Router();
 
@@ -8,22 +8,27 @@ router.post("/signIn", async (request, response, next) => {
   const body = request.body;
   try {
     if (!body || !body.userName || !body.password) {
-      const error = new Response(400, "not enough parameter");
-      next(error);
+      response.status(400);
+      next(new Error("not enough parameter"));
     } else {
-      const signInSiccess = await signIn(body.userName, body.password);
+      const userService = new UserService();
+      const signInInfo = await userService.signIn(body.userName, body.password);
 
-      if (signInSiccess) {
-        const responseObj = new Response(200, "success");
+      if (signInInfo) {
+        const responseObj: RestResponse = {
+          message: "success",
+          result: signInInfo,
+          statusCode: 200
+        };
         response.status(200).send(responseObj);
       } else {
-        const unauthError = new Response(403, "Forbidden");
-        next(unauthError);
+        response.status(403);
+        next(new Error("Forbidden"));
       }
     }
   } catch (e) {
-    const error = new Response(500, "error : " + e.message);
-    next(error);
+    response.status(500);
+    next(e);
   }
 });
 
@@ -31,17 +36,25 @@ router.post("/signUp", async (request, response, next) => {
   const body = request.body;
   try {
     if (!body.userName || !body.password) {
-      const error = new Response(400, "not enough parameter");
-      next(error);
+      response.status(400);
+      next(new Error("not enough parameter"));
     }
-    const createUserSuccess = (await signUp(body.userName, body.password))
+    const userService = new UserService();
+    const createUserSuccess = (await userService.signUp(
+      body.userName,
+      body.password
+    ))
       ? "success"
       : "fail";
-    const res = new Response(200, createUserSuccess);
-    response.status(200).send(res);
+    const responseObj: RestResponse = {
+      message: createUserSuccess,
+      result: null,
+      statusCode: 200
+    };
+    response.status(200).send(responseObj);
   } catch (e) {
-    const error = new Response(500, "error : " + e.message);
-    next(error);
+    response.status(500);
+    next(e);
   }
 });
 
@@ -49,15 +62,22 @@ router.post("/signOut", function (request, response, next) {
   const body = request.body;
   try {
     if (!body.userName) {
-      const error = new Response(400, "not enough parameter");
-      next(error);
+      response.status(400);
+      next(new Error("not enough parameter"));
     }
-    const createUserSuccess = signOut(body.userName) ? "success" : "fail";
-    const res = new Response(200, createUserSuccess);
-    response.status(200).send(res);
+    const userService = new UserService();
+    const siginOutResult = userService.signOut(body.userName)
+      ? "success"
+      : "fail";
+    const responseObj: RestResponse = {
+      message: siginOutResult,
+      result: null,
+      statusCode: 200
+    };
+    response.status(200).send(responseObj);
   } catch (e) {
-    const error = new Response(500, "error : " + e.message);
-    next(error);
+    response.status(500);
+    next(e);
   }
 });
 
