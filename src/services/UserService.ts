@@ -1,14 +1,13 @@
-import { getRepository, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import bcrypt from "bcrypt";
 import { UserEntity } from "../entites/UserEntity";
 import { sign } from "jsonwebtoken";
 
 export class UserService {
-  bcryptHashRound: number;
+  bcryptHashRound: number = 10;
   userRepository: Repository<UserEntity>;
-  constructor() {
-    this.bcryptHashRound = 10;
-    this.userRepository = getRepository(UserEntity);
+  constructor(repo: Repository<UserEntity>) {
+    this.userRepository = repo; //getRepository(UserEntity);
   }
 
   signIn = async (userName: string, password: string) => {

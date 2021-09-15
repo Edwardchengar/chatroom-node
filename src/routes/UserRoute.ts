@@ -1,6 +1,8 @@
 import express from "express";
 import { RestResponse } from "../model/RestResponse";
 import { UserService } from "../services/UserService";
+import { UserEntity } from "../entites/UserEntity";
+import { getRepository } from "typeorm";
 
 const router = express.Router();
 
@@ -11,7 +13,7 @@ router.post("/signIn", async (request, response, next) => {
       response.status(400);
       next(new Error("not enough parameter"));
     } else {
-      const userService = new UserService();
+      const userService = new UserService(getRepository(UserEntity));
       const signInInfo = await userService.signIn(body.userName, body.password);
 
       if (signInInfo) {
@@ -39,7 +41,7 @@ router.post("/signUp", async (request, response, next) => {
       response.status(400);
       next(new Error("not enough parameter"));
     }
-    const userService = new UserService();
+    const userService = new UserService(getRepository(UserEntity));
     const createUserSuccess = (await userService.signUp(
       body.userName,
       body.password
@@ -65,7 +67,7 @@ router.post("/signOut", function (request, response, next) {
       response.status(400);
       next(new Error("not enough parameter"));
     }
-    const userService = new UserService();
+    const userService = new UserService(getRepository(UserEntity));
     const siginOutResult = userService.signOut(body.userName)
       ? "success"
       : "fail";
