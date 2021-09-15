@@ -7,6 +7,8 @@ import { Server, Socket } from "socket.io";
 import { ChatServices } from "./services/ChatServices";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { ChatRequest } from "./model/ChatRequest";
+import { getRepository } from "typeorm";
+import { UserEntity } from "./entites/UserEntity";
 
 const app = express();
 
@@ -61,8 +63,8 @@ io.on("connection", (socket: Socket) => {
   if (decodedToken.userName) {
     username = decodedToken.userName;
   }
-
-  const chat = new ChatServices(socket, redis.getClient());
+  const repo = getRepository(UserEntity);
+  const chat = new ChatServices(socket, repo);
 
   if (username) {
     chat.initSocket(username);
