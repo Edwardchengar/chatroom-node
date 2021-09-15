@@ -1,5 +1,5 @@
 import { createConnection } from "typeorm";
-import { UserEntity } from "../entites/UserEntity";
+import { UserEntity } from "../entities/UserEntity";
 const setUpMongoConnection = async () => {
   await createConnection({
     type: "mongodb",

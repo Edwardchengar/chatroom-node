@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import bcrypt from "bcrypt";
-import { UserEntity } from "../entites/UserEntity";
+import { UserEntity } from "../entities/UserEntity";
 import { sign } from "jsonwebtoken";
 
 export class UserService {

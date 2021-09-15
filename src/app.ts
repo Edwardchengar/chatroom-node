@@ -8,7 +8,7 @@ import { ChatServices } from "./services/ChatServices";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { ChatRequest } from "./model/ChatRequest";
 import { getRepository } from "typeorm";
-import { UserEntity } from "./entites/UserEntity";
+import { UserEntity } from "./entities/UserEntity";
 
 const app = express();
 

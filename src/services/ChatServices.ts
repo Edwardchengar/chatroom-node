@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import { Repository } from "typeorm";
-import { UserEntity } from "../entites/UserEntity";
+import { UserEntity } from "../entities/UserEntity";
 import { ChatRequest } from "../model/ChatRequest";
 
 export class ChatServices {

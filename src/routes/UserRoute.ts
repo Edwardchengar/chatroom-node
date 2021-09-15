@@ -1,7 +1,7 @@
 import express from "express";
 import { RestResponse } from "../model/RestResponse";
 import { UserService } from "../services/UserService";
-import { UserEntity } from "../entites/UserEntity";
+import { UserEntity } from "../entities/UserEntity";
 import { getRepository } from "typeorm";
 
 const router = express.Router();
