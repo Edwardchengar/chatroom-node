@@ -34,4 +34,7 @@ export class UserEntity {
 
   @Column()
   token: string;
+
+  @Column()
+  socketId: string;
 }

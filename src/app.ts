@@ -4,7 +4,6 @@ import setUpMongoConnection from "./util/MongoConnection";
 import userRouter from "./routes/userRoute";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
-import { RedisConnection } from "./util/RedisConnection";
 import { ChatServices } from "./services/ChatServices";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { ChatRequest } from "./model/ChatRequest";
@@ -16,7 +15,7 @@ app.use(express.json());
 
 // MongoDb connection and redis conncection;
 setUpMongoConnection();
-const redis = new RedisConnection();
+
 // router part
 app.use("/user", userRouter);
 

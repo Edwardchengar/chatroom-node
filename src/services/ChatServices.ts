@@ -1,19 +1,23 @@
-import { Redis } from "ioredis";
 import { Socket } from "socket.io";
+import { Repository } from "typeorm";
+import { UserEntity } from "../entites/UserEntity";
 import { ChatRequest } from "../model/ChatRequest";
 
 export class ChatServices {
   socket: Socket;
-  redis: Redis;
-  constructor(socket: Socket, redis: Redis) {
+  userRepository: Repository<UserEntity>;
+  constructor(socket: Socket, repo: Repository<UserEntity>) {
     this.socket = socket;
-    this.redis = redis;
+    this.userRepository = repo;
   }
 
-  initSocket = async (username: string) => {
+  initSocket = async (userName: string) => {
     try {
-      if (this.redis && this.socket && this.socket.id) {
-        await this.redis.set(username, this.socket.id);
+      if (this.socket && this.socket.id) {
+        await this.userRepository.update(
+          { userName: userName },
+          { socketId: this.socket.id }
+        );
       } else {
         throw new Error("initSocket fail");
       }
@@ -25,7 +29,10 @@ export class ChatServices {
 
   sendMessage = async (request: ChatRequest) => {
     try {
-      const socketId = await this.redis.get(request.receipt);
+      const user = await this.userRepository.findOne({
+        userName: request.receipt
+      });
+      const socketId = user.socketId;
       if (!socketId) {
         throw new Error("no suitable recepit");
       }

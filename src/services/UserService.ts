@@ -7,7 +7,7 @@ export class UserService {
   bcryptHashRound: number = 10;
   userRepository: Repository<UserEntity>;
   constructor(repo: Repository<UserEntity>) {
-    this.userRepository = repo; //getRepository(UserEntity);
+    this.userRepository = repo;
   }
 
   signIn = async (userName: string, password: string) => {
@@ -28,7 +28,10 @@ export class UserService {
 
   signOut = async (userName: string) => {
     try {
-      await this.userRepository.update({ userName: userName }, { token: null });
+      await this.userRepository.update(
+        { userName: userName },
+        { token: null, socketId: null }
+      );
       return true;
     } catch (e) {
       console.log("error when signOut : " + e);
